@@ -7,7 +7,16 @@ import jakarta.persistence.*;
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name="prerequisites")
+@Table(
+        name="prerequisites",
+        uniqueConstraints = {
+                @UniqueConstraint(name="uk_subject_id_prerequisite_id",
+                        columnNames = {"subject_id", "prerequisite_id"}
+                )
+
+
+        }
+)
 public class PrerequisiteEntity {
     @Id
     @Column(nullable = false)

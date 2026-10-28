@@ -11,7 +11,7 @@ import jakarta.persistence.*;
 @Table(
         name = "study_plans",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_sp_identifier",
+                @UniqueConstraint(name = "uk_study_plan_career_id_identifier",
                         columnNames = {"career_id", "identifier"}
                 )
         }
