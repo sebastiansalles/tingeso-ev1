@@ -3,7 +3,6 @@ import cl.ipt.siga.entity.enums.CareerStatus;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import jakarta.persistence.*;
 
 
