@@ -12,7 +12,7 @@ import jakarta.persistence.*;
         name = "study_plans",
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_sp_identifier",
-                        columnNames = {"id", "identifier"}
+                        columnNames = {"career_id", "identifier"}
                 )
         }
 )
@@ -29,5 +29,6 @@ public class StudyPlanEntity {
     private String identifier;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private StudyPlanStatus status;
 }
