@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CareerRepository extends JpaRepository<CareerEntity, Long> {
-    CareerEntity findByCareerId(Long careerId);
+    boolean existsByCode(String code);
 }
