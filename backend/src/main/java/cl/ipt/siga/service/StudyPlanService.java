@@ -4,7 +4,6 @@ import cl.ipt.siga.entity.StudyPlanEntity;
 import cl.ipt.siga.entity.enums.StudyPlanStatus;
 import cl.ipt.siga.exception.DuplicateResourceException;
 import cl.ipt.siga.exception.ResourceNotFoundException;
-import cl.ipt.siga.repository.CareerRepository;
 import cl.ipt.siga.repository.StudyPlanRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,9 +16,9 @@ public class StudyPlanService {
     private final StudyPlanRepository studyPlanRepository;
     private final CareerService careerService;
 
-    public StudyPlanService(StudyPlanRepository studyPlanRepository, CareerRepository careerRepository) {
+    public StudyPlanService(StudyPlanRepository studyPlanRepository, CareerService careerService) {
         this.studyPlanRepository = studyPlanRepository;
-        this.careerService = new CareerService(careerRepository);
+        this.careerService = careerService;
     }
 
     public List<StudyPlanEntity> getAll(){
@@ -27,13 +26,8 @@ public class StudyPlanService {
     }
 
     public List<StudyPlanEntity> getByCareer(Long careerId) {
-        List<StudyPlanEntity> studyPlans = studyPlanRepository.findByCareerId(careerId);
-
-        if (studyPlans.isEmpty()) {
-            throw new ResourceNotFoundException("Could not find any study plans for career ID: " + careerId);
-        }
-
-        return studyPlans;
+        careerService.getById(careerId);   // 404 if the career does not exist
+        return studyPlanRepository.findByCareerId(careerId);   // may be an empty list
     }
 
 
