@@ -28,12 +28,12 @@ public class CareerController {
 
     @PostMapping
     public ResponseEntity<CareerEntity> create(@RequestBody CareerEntity careerEntity) {
-        return ResponseEntity.ok(careerService.create(careerEntity));
+        return ResponseEntity.status(HttpStatus.CREATED).body(careerService.create(careerEntity));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<CareerEntity> update(@PathVariable Long id, @RequestBody CareerEntity careerEntity) {
-        //return ResponseEntity.created(careerService.update(id, careerEntity));
-        return ResponseEntity.status(HttpStatus.CREATED).body(careerService.update(id, careerEntity));
+        return ResponseEntity.ok(careerService.update(id, careerEntity));
     }
+
 }
