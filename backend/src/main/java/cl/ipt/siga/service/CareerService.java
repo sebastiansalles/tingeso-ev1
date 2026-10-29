@@ -15,7 +15,6 @@ import java.util.Objects;
 public class CareerService {
 
     private final CareerRepository careerRepository;
-
     public CareerService(CareerRepository careerRepository) {
         this.careerRepository = careerRepository;
     }
