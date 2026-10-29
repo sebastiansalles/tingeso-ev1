@@ -11,7 +11,7 @@ import jakarta.persistence.*;
         name="prerequisites",
         uniqueConstraints = {
                 // Solo un registro para cada pareja asignatura:requisito
-                @UniqueConstraint(name="ukprerequisite_subject_id_prerequisite_id",
+                @UniqueConstraint(name="uk_prerequisite_subject_id_prerequisite_id",
                         columnNames = {"subject_id", "prerequisite_id"}
                 )
 

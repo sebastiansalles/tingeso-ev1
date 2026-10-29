@@ -11,8 +11,8 @@ import jakarta.persistence.*;
         name="period_registrations",
         uniqueConstraints = {
                 //Un estudiante se matricula una sola vez por período
-                @UniqueConstraint(name="period_registration_student_id_academic_period",columnNames = {
-                        "student_id", "academic_period"
+                @UniqueConstraint(name="uk_period_registration_student_id_academic_period",columnNames = {
+                        "student_id", "academic_period_id"
                 })
         }
 )
@@ -26,5 +26,5 @@ public class PeriodRegistrationEntity {
     private Long studentId;
 
     @Column(nullable = false)
-    Long academicPeriodId;
+    private Long academicPeriodId;
 }
