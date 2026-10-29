@@ -10,8 +10,9 @@ import jakarta.persistence.*;
 @Table(
         name="sections",
         uniqueConstraints = {
-                @UniqueConstraint(
-                        columnNames = {"subject_id", "academic_period"}
+                //Una asignatura podrá contar con una única sección durante un mismo período académico
+                @UniqueConstraint(name="section_subject_id_academic_period_id",
+                        columnNames = {"subject_id", "academic_period_id"}
                 )
         }
 )

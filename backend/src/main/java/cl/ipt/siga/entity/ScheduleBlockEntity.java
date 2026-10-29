@@ -11,7 +11,8 @@ import jakarta.persistence.*;
 @Table(
         name="schedule_blocks",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {
+                //Una sección no podrá tener bloques horarios duplicados
+                @UniqueConstraint(name= "uk_schedule_block_section_id_day_module", columnNames = {
                         "section_id", "day", "module"
                 })
         }
@@ -25,6 +26,7 @@ public class ScheduleBlockEntity {
     private Long sectionId;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Day day;
 
     @Column(nullable = false)

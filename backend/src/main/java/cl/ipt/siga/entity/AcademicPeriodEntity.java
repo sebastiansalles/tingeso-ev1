@@ -11,7 +11,7 @@ import jakarta.persistence.*;
 @Table(
         name="academic_periods",
         uniqueConstraints = {
-                @UniqueConstraint(name="uk_year_semester",
+                @UniqueConstraint(name="uk_academic_period_year_semester",
                         columnNames = {"year","semester"}
                 )
         }
@@ -31,5 +31,5 @@ public class AcademicPeriodEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private PeriodStatus periodStatus;
+    private PeriodStatus status;
 }
