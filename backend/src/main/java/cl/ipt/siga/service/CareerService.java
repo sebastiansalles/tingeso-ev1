@@ -7,6 +7,7 @@ import cl.ipt.siga.repository.CareerRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 
 @Service
@@ -22,13 +23,15 @@ public class CareerService {
         return careerRepository.findAll();
     }
 
+
     public CareerEntity getById(Long id){
         return careerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Could not find a career with ID: "+ id));
     }
 
     public CareerEntity create(CareerEntity careerEntity){
-        if(!careerRepository.existsById(careerEntity.getId())){
+        if(!careerRepository.existsByCode(careerEntity.getCode())){
+            careerEntity.setId(null);
             return careerRepository.save(careerEntity);
         }
         else{
@@ -38,7 +41,8 @@ public class CareerService {
 
     public CareerEntity update(Long id, CareerEntity data){
         CareerEntity careerEntity = getById(id);
-        if(careerEntity.getCode() != data.getCode()){
+        //if(careerEntity.getCode() != data.getCode()){//
+        if(!Objects.equals(careerEntity.getCode(),  data.getCode())){
             throw new BusinessRuleException("It is not possible to modify a career code");
         }
         careerEntity.setName(data.getName());
