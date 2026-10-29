@@ -33,5 +33,6 @@ public class TeacherEntity {
     private String academicDegree;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private TeacherStatus status;
 }

@@ -33,5 +33,6 @@ public class StudentEntity {
     private Long studyPlanId;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private StudentStatus status;
 }
