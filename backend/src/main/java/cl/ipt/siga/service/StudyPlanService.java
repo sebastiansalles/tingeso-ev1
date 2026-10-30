@@ -2,6 +2,7 @@ package cl.ipt.siga.service;
 
 import cl.ipt.siga.entity.StudyPlanEntity;
 import cl.ipt.siga.entity.enums.StudyPlanStatus;
+import cl.ipt.siga.exception.BusinessRuleException;
 import cl.ipt.siga.exception.DuplicateResourceException;
 import cl.ipt.siga.exception.ResourceNotFoundException;
 import cl.ipt.siga.repository.StudyPlanRepository;
@@ -58,5 +59,12 @@ public class StudyPlanService {
         // Make sure there is no overwrite to an existing id
         plan.setId(null);
         return studyPlanRepository.save(plan);
+    }
+
+
+    public StudyPlanEntity getCurrentByCareer(Long careerId) {
+        return studyPlanRepository.findByCareerIdAndStatus(careerId, StudyPlanStatus.CURRENT)
+                .orElseThrow(() -> new BusinessRuleException(
+                        "Career " + careerId + " has no current study plan"));
     }
 }
