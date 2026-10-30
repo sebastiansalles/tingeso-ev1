@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface SubjectRepository extends JpaRepository<SubjectEntity,Long>{
 
-    boolean existByStudyPlanIdAndCode(Long studyPlanId, String code);
+    boolean existsByStudyPlanIdAndCode(Long studyPlanId, String code);
     List<SubjectEntity> findByStudyPlanId(Long studyPlanId);
 }
