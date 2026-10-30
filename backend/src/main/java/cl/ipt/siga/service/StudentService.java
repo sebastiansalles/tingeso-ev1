@@ -86,27 +86,39 @@ public class StudentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Student with that id not found"));
     }
 
-    public StudentEntity update(Long id, StudentEntity data){
-        StudentEntity to_update = getById(id);
-        if(!Objects.equals(data.getId(), to_update.getId())) {
-            throw new BusinessRuleException("Student id cant be modified");
-        }
-        to_update.setCareerId(data.getCareerId());
-        String normalizedEmail = normalizeEmail(data.getEmail());
-        to_update.setEmail(normalizedEmail);
-        String normalizedRun = normalizeRun(data.getRun());
-        to_update.setRun(normalizedRun);
-        to_update.setStudyPlanId(data.getStudyPlanId());
-        to_update.setStatus(data.getStatus());
-        return studentRepository.save(to_update);
+    // Updates personal data only. Career, study plan and status have their own rules.
+    public StudentEntity update(Long id, StudentEntity data) {
+        StudentEntity student = getById(id);
 
+        String newRun = normalizeRun(data.getRun());
+        String newEmail = normalizeEmail(data.getEmail());
+
+        if (!newRun.equals(student.getRun()) && studentRepository.existsByRun(newRun)) {
+            throw new DuplicateResourceException("A student with RUN " + newRun + " already exists");
+        }
+        if (!newEmail.equals(student.getEmail()) && studentRepository.existsByEmail(newEmail)) {
+            throw new DuplicateResourceException("A student with email " + newEmail + " already exists");
+        }
+
+        student.setRun(newRun);
+        student.setFullName(data.getFullName());
+        student.setEmail(newEmail);
+        return studentRepository.save(student);
     }
 
 
-    public StudentEntity changeStatus(Long id, StudentStatus status){
-        StudentEntity to_update = getById(id);
-        to_update.setStatus(status);
-        return studentRepository.save(to_update);
+    public StudentEntity changeStatus(Long id, StudentStatus newStatus) {
+        StudentEntity student = getById(id);
 
+        if (newStatus == StudentStatus.GRADUATED || newStatus == StudentStatus.ELIMINATED) {
+            throw new BusinessRuleException("Status " + newStatus + " is assigned automatically at period closing");
+        }
+        // Design decision: a graduated or eliminated student cannot be changed manually
+        if (student.getStatus() == StudentStatus.GRADUATED || student.getStatus() == StudentStatus.ELIMINATED) {
+            throw new BusinessRuleException("A " + student.getStatus() + " student cannot change status manually");
+        }
+
+        student.setStatus(newStatus);
+        return studentRepository.save(student);
     }
 }
