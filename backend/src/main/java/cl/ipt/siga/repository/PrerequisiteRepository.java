@@ -8,7 +8,6 @@ import java.util.Optional;
 
 public interface PrerequisiteRepository extends JpaRepository<PrerequisiteEntity, Long> {
     boolean existsBySubjectIdAndPrerequisiteId(Long subjectId, Long prerequisiteId);
-    boolean existsByStudyPlanIdAndCode(Long studyPlanId, Long code);
     long countBySubjectId(Long subjectId);
     List<PrerequisiteEntity> findBySubjectId(Long subjectId);
     Optional<PrerequisiteEntity> findBySubjectIdAndPrerequisiteId(Long subjectId, Long prerequisiteId);
