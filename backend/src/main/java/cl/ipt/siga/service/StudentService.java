@@ -101,4 +101,19 @@ public class StudentService {
         student.setStatus(newStatus);
         return studentRepository.save(student);
     }
+
+
+    // GRADUATED and ELIMINATED are assigned only by the period closing process,
+// never through changeStatus
+    public void markAsGraduated(Long id) {
+        StudentEntity student = getById(id);
+        student.setStatus(StudentStatus.GRADUATED);
+        studentRepository.save(student);
+    }
+
+    public void markAsEliminated(Long id) {
+        StudentEntity student = getById(id);
+        student.setStatus(StudentStatus.ELIMINATED);
+        studentRepository.save(student);
+    }
 }

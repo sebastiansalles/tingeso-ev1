@@ -63,4 +63,11 @@ public class AcademicPeriodService {
         return academicPeriodRepository.findByStatus(PeriodStatus.OPEN)
                 .stream().map(AcademicPeriodEntity::getId).toList();
     }
+
+
+    // Called only by the period closing process
+    public AcademicPeriodEntity markAsClosed(AcademicPeriodEntity period) {
+        period.setStatus(PeriodStatus.CLOSED);
+        return academicPeriodRepository.save(period);
+    }
 }

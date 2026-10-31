@@ -13,4 +13,6 @@ public interface SectionRepository extends JpaRepository<SectionEntity, Long> {
     boolean existsByTeacherIdAndAcademicPeriodIdIn(Long teacherId, List<Long> academicPeriodIds);
 
     Optional<SectionEntity> findBySubjectIdAndAcademicPeriodId(Long subjectId, Long academicPeriodId);
+
+    List<SectionEntity> findByTeacherId(Long teacherId);
 }

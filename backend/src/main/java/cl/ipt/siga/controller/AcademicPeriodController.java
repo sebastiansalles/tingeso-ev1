@@ -2,6 +2,7 @@ package cl.ipt.siga.controller;
 
 import cl.ipt.siga.entity.AcademicPeriodEntity;
 import cl.ipt.siga.service.AcademicPeriodService;
+import cl.ipt.siga.service.PeriodClosingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.List;
 public class AcademicPeriodController {
 
     private final AcademicPeriodService academicPeriodService;
+    private final PeriodClosingService periodClosingService;
 
     // GET /api/v1/academic-periods -> 200 OK
     @GetMapping
@@ -33,5 +35,14 @@ public class AcademicPeriodController {
     public ResponseEntity<AcademicPeriodEntity> create(@RequestBody AcademicPeriodEntity academicPeriod) {
         AcademicPeriodEntity createdPeriod = academicPeriodService.create(academicPeriod);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPeriod);
+    }
+
+
+
+
+    // POST /api/v1/academic-periods/1/close -> runs the closing process
+    @PostMapping("/{id}/close")
+    public ResponseEntity<AcademicPeriodEntity> close(@PathVariable Long id) {
+        return ResponseEntity.ok(periodClosingService.close(id));
     }
 }

@@ -176,4 +176,15 @@ public class SectionService {
     public Optional<SectionEntity> findBySubjectAndPeriod(Long subjectId, Long academicPeriodId) {
         return sectionRepository.findBySubjectIdAndAcademicPeriodId(subjectId, academicPeriodId);
     }
+
+
+    // Sections assigned to a teacher, optionally filtered by period
+    public List<SectionEntity> getByTeacher(Long teacherId, Long academicPeriodId) {
+        teacherService.getById(teacherId);   // 404
+        if (academicPeriodId == null) {
+            return sectionRepository.findByTeacherId(teacherId);
+        }
+        academicPeriodService.getById(academicPeriodId);   // 404
+        return sectionRepository.findByTeacherIdAndAcademicPeriodId(teacherId, academicPeriodId);
+    }
 }
