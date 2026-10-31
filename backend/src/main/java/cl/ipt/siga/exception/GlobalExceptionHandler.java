@@ -25,10 +25,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleGeneric(Exception ex) {
-        log.error("Unexpected error", ex);   // the full error goes to the console, for you
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("An unexpected error occurred");   // generic message, for the client
+    // Malformed requests: missing parameter, wrong type (e.g. status=FOO), invalid JSON body
+    @ExceptionHandler({
+            org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class,
+            org.springframework.web.bind.MissingServletRequestParameterException.class,
+            org.springframework.http.converter.HttpMessageNotReadableException.class
+    })
+    public ResponseEntity<String> handleBadRequest(Exception ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or missing request data");
     }
 }

@@ -171,4 +171,9 @@ public class SectionService {
     private String blockKey(Day day, int module) {
         return "" + day.getCode() + module;
     }
+
+    // The section offered for a subject in a period, if any (one per subject and period)
+    public Optional<SectionEntity> findBySubjectAndPeriod(Long subjectId, Long academicPeriodId) {
+        return sectionRepository.findBySubjectIdAndAcademicPeriodId(subjectId, academicPeriodId);
+    }
 }

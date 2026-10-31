@@ -4,7 +4,6 @@ import cl.ipt.siga.entity.TeacherEntity;
 import cl.ipt.siga.entity.enums.TeacherStatus;
 import cl.ipt.siga.exception.DuplicateResourceException;
 import cl.ipt.siga.exception.ResourceNotFoundException;
-import cl.ipt.siga.repository.AcademicPeriodRepository;
 import cl.ipt.siga.repository.SectionRepository;
 import cl.ipt.siga.repository.TeacherRepository;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ public class TeacherService {
     private final SectionRepository sectionRepository;
     private final AcademicPeriodService academicPeriodService;
 
-    public TeacherService(TeacherRepository teacherRepository, SectionRepository sectionRepository, AcademicPeriodRepository academicPeriodRepository, AcademicPeriodService academicPeriodService) {
+    public TeacherService(TeacherRepository teacherRepository, SectionRepository sectionRepository,  AcademicPeriodService academicPeriodService) {
         this.teacherRepository = teacherRepository;
         this.sectionRepository = sectionRepository;
         this.academicPeriodService = academicPeriodService;
