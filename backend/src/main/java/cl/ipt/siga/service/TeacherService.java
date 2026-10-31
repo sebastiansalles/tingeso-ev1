@@ -4,8 +4,11 @@ import cl.ipt.siga.entity.TeacherEntity;
 import cl.ipt.siga.entity.enums.TeacherStatus;
 import cl.ipt.siga.exception.DuplicateResourceException;
 import cl.ipt.siga.exception.ResourceNotFoundException;
+import cl.ipt.siga.repository.AcademicPeriodRepository;
+import cl.ipt.siga.repository.SectionRepository;
 import cl.ipt.siga.repository.TeacherRepository;
 import org.springframework.stereotype.Service;
+import cl.ipt.siga.exception.BusinessRuleException;
 
 import java.util.List;
 
@@ -15,9 +18,13 @@ import static cl.ipt.siga.util.PersonDataUtils.*;
 public class TeacherService {
 
     private final TeacherRepository teacherRepository;
+    private final SectionRepository sectionRepository;
+    private final AcademicPeriodService academicPeriodService;
 
-    public TeacherService(TeacherRepository teacherRepository) {
+    public TeacherService(TeacherRepository teacherRepository, SectionRepository sectionRepository, AcademicPeriodRepository academicPeriodRepository, AcademicPeriodService academicPeriodService) {
         this.teacherRepository = teacherRepository;
+        this.sectionRepository = sectionRepository;
+        this.academicPeriodService = academicPeriodService;
     }
 
     public List<TeacherEntity> getAll() {
@@ -72,7 +79,14 @@ public class TeacherService {
 
     public TeacherEntity changeStatus(Long id, TeacherStatus newStatus) {
         TeacherEntity teacher = getById(id);
-        // reject INACTIVE if the teacher has sections in an OPEN period
+        if (newStatus == TeacherStatus.INACTIVE) {
+            List<Long> openPeriodIds = academicPeriodService.getOpenPeriodIds();
+            if (!openPeriodIds.isEmpty()
+                    && sectionRepository.existsByTeacherIdAndAcademicPeriodIdIn(id, openPeriodIds)) {
+                throw new BusinessRuleException("Teacher " + teacher.getFullName()
+                        + " has sections in an open period and cannot be set as inactive");
+            }
+        }
         teacher.setStatus(newStatus);
         return teacherRepository.save(teacher);
     }

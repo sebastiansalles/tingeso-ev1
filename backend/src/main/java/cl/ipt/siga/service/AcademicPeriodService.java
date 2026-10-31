@@ -58,4 +58,9 @@ public class AcademicPeriodService {
         }
         return period;
     }
+
+    public List<Long> getOpenPeriodIds() {
+        return academicPeriodRepository.findByStatus(PeriodStatus.OPEN)
+                .stream().map(AcademicPeriodEntity::getId).toList();
+    }
 }
