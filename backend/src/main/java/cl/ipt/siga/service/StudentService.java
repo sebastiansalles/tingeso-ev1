@@ -1,6 +1,6 @@
 package cl.ipt.siga.service;
 
-
+import static cl.ipt.siga.util.PersonDataUtils.*;
 import cl.ipt.siga.entity.CareerEntity;
 import cl.ipt.siga.entity.StudentEntity;
 import cl.ipt.siga.entity.enums.CareerStatus;
@@ -12,7 +12,6 @@ import cl.ipt.siga.repository.StudentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class StudentService {
@@ -27,27 +26,6 @@ public class StudentService {
         this.studyPlanService = studyPlanService;
     }
 
-    //NORMALIZATION METHODS
-    // "12.345.678-k", "12345678-K" and "12345678k" all become "12345678-K"
-    private String normalizeRun(String run) {
-        if (run == null) {
-            throw new BusinessRuleException("RUN is required");
-        }
-        String clean = run.replace(".", "").replace("-", "").replace(" ", "").toUpperCase();
-        if (!clean.matches("\\d{7,8}[0-9K]")) {
-            throw new BusinessRuleException("Invalid RUN format: " + run);
-        }
-        // insert the hyphen before the check digit
-        return clean.substring(0, clean.length() - 1) + "-" + clean.charAt(clean.length() - 1);
-    }
-
-    private String normalizeEmail(String email) {
-        if (email == null || email.isBlank()) {
-            throw new BusinessRuleException("Email is required");
-        }
-        return email.trim().toLowerCase();
-    }
-
     public StudentEntity create(StudentEntity student) {
         CareerEntity career = careerService.getById(student.getCareerId());   // 404
         if (career.getStatus() == CareerStatus.INACTIVE) {
@@ -56,6 +34,7 @@ public class StudentService {
 
         student.setRun(normalizeRun(student.getRun()));
         student.setEmail(normalizeEmail(student.getEmail()));
+        student.setFullName(requireText(student.getFullName(), "Full name"));
 
         if (studentRepository.existsByRun(student.getRun())) {
             throw new DuplicateResourceException("A student with RUN " + student.getRun() + " already exists");
@@ -76,7 +55,7 @@ public class StudentService {
     }
 
     public List<StudentEntity> getByCareer(Long careerId) {
-        Long cId = careerService.getById(careerId).getId();
+        careerService.getById(careerId);
         return studentRepository.findByCareerId(careerId);
     }
 
@@ -92,6 +71,7 @@ public class StudentService {
 
         String newRun = normalizeRun(data.getRun());
         String newEmail = normalizeEmail(data.getEmail());
+        student.setFullName(requireText(data.getFullName(), "Full name"));
 
         if (!newRun.equals(student.getRun()) && studentRepository.existsByRun(newRun)) {
             throw new DuplicateResourceException("A student with RUN " + newRun + " already exists");
