@@ -7,6 +7,7 @@ import Pending from "./pages/Pending";
 import NotFound from "./pages/NotFound";
 import CareerList from "./pages/admin/CareerList";
 import { ROLES } from "./auth";
+import CareerForm from "./pages/admin/CareerForm";
 
 const admin = (page) => <RequireRole roles={[ROLES.ADMIN]}>{page}</RequireRole>;
 const teacher = (page) => <RequireRole roles={[ROLES.TEACHER]}>{page}</RequireRole>;
@@ -37,6 +38,10 @@ export default function App() {
           <Route path="/enroll" element={student(<Pending />)} />
           <Route path="/my-enrollments" element={student(<Pending />)} />
           <Route path="/history" element={student(<Pending />)} />
+
+          <Route path="/careers" element={admin(<CareerList />)} />
+          <Route path="/careers/new" element={admin(<CareerForm />)} />
+          <Route path="/careers/:id/edit" element={admin(<CareerForm />)} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>

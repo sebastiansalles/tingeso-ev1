@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  Alert, Chip, CircularProgress, Paper, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Typography,
+  Alert, Button, Chip, CircularProgress, IconButton, Paper, Stack, Table, TableBody,
+  TableCell, TableContainer, TableHead, TableRow, Typography,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 import careerService from "../../services/career.service";
 
 export default function CareerList() {
   const [careers, setCareers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   // Runs once, when the page is shown: loads the careers from the backend
   useEffect(() => {
@@ -23,7 +26,11 @@ export default function CareerList() {
 
   return (
     <>
-      <Typography variant="h5" gutterBottom>Carreras</Typography>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+        <Typography variant="h5">Carreras</Typography>
+        <Button variant="contained" onClick={() => navigate("/careers/new")}>Nueva carrera</Button>
+      </Stack>
+
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -32,6 +39,7 @@ export default function CareerList() {
               <TableCell>Nombre</TableCell>
               <TableCell>Descripción</TableCell>
               <TableCell>Estado</TableCell>
+              <TableCell align="right">Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -46,6 +54,11 @@ export default function CareerList() {
                     color={career.status === "ACTIVE" ? "success" : "default"}
                     size="small"
                   />
+                </TableCell>
+                <TableCell align="right">
+                  <IconButton onClick={() => navigate(`/careers/${career.id}/edit`)} aria-label="Editar">
+                    <EditIcon />
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}
