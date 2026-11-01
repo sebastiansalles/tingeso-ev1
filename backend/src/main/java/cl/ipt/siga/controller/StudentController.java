@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class StudentController {
 
     // GET /api/v1/students            -> all students
     // GET /api/v1/students?careerId=1 -> students of one career
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<StudentEntity>> getAll(@RequestParam(required = false) Long careerId) {
         if (careerId == null) {
@@ -26,18 +28,19 @@ public class StudentController {
         }
         return ResponseEntity.ok(studentService.getByCareer(careerId));
     }
-
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('STUDENT') and @access.isStudent(#id))")
     @GetMapping("/{id}")
     public ResponseEntity<StudentEntity> getById(@PathVariable Long id) {
         return ResponseEntity.ok(studentService.getById(id));
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<StudentEntity> create(@RequestBody StudentEntity student) {
         return ResponseEntity.status(HttpStatus.CREATED).body(studentService.create(student));
     }
 
     // Updates personal data only (RUN, full name, email)
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<StudentEntity> update(@PathVariable Long id, @RequestBody StudentEntity student) {
         return ResponseEntity.ok(studentService.update(id, student));
@@ -45,6 +48,7 @@ public class StudentController {
 
     // PUT /api/v1/students/1/status?status=POSTPONED
     // Only REGULAR, POSTPONED and TEMPORARY_WITHDRAWAL can be assigned manually
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}/status")
     public ResponseEntity<StudentEntity> changeStatus(@PathVariable Long id,
                                                       @RequestParam StudentStatus status) {

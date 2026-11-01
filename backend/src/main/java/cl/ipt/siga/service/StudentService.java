@@ -116,4 +116,15 @@ public class StudentService {
         student.setStatus(StudentStatus.ELIMINATED);
         studentRepository.save(student);
     }
+
+
+
+    // The student linked to a Keycloak account: users are matched by email
+    public StudentEntity getByEmail(String email) {
+        if (email == null) {
+            throw new ResourceNotFoundException("The logged-in user has no email");
+        }
+        return studentRepository.findByEmail(email.trim().toLowerCase())
+                .orElseThrow(() -> new ResourceNotFoundException("No student is linked to the account " + email));
+    }
 }

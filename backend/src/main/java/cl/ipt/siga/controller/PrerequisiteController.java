@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -17,11 +18,13 @@ public class PrerequisiteController {
 
     private final PrerequisiteService prerequisiteService;
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<PrerequisiteEntity>> getAll(@PathVariable Long subjectId) {
         return ResponseEntity.ok(prerequisiteService.getPrerequisites(subjectId));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{prerequisiteId}")
     public ResponseEntity<PrerequisiteEntity> add(@PathVariable Long subjectId,
                                                   @PathVariable Long prerequisiteId) {
@@ -29,6 +32,7 @@ public class PrerequisiteController {
                 .body(prerequisiteService.addPrerequisite(subjectId, prerequisiteId));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{prerequisiteId}")
     public ResponseEntity<Void> remove(@PathVariable Long subjectId,
                                        @PathVariable Long prerequisiteId) {

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public class StudyPlanController {
 
     private final StudyPlanService studyPlanService;
 
-
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<StudyPlanEntity>> getAll(@RequestParam(required = false) Long careerId) {
         if (careerId == null) {
@@ -26,12 +27,13 @@ public class StudyPlanController {
         //plans of the provided careerID
         return ResponseEntity.ok(studyPlanService.getByCareer(careerId));
     }
-
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<StudyPlanEntity> getById(@PathVariable Long id) {
         return ResponseEntity.ok(studyPlanService.getById(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<StudyPlanEntity> create(@RequestBody StudyPlanEntity studyPlan) {
         return ResponseEntity.status(HttpStatus.CREATED).body(studyPlanService.create(studyPlan));

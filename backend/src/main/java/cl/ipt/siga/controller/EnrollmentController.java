@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class EnrollmentController {
     private final EnrollmentService enrollmentService;
 
     // GET /api/v1/students/1/available-subjects?academicPeriodId=1
+    @PreAuthorize("hasRole('STUDENT') and @access.isStudent(#studentId)")
     @GetMapping("/students/{studentId}/available-subjects")
     public ResponseEntity<List<SubjectEntity>> getAvailableSubjects(@PathVariable Long studentId,
                                                                     @RequestParam Long academicPeriodId) {
@@ -25,6 +27,7 @@ public class EnrollmentController {
     }
 
     // POST /api/v1/students/1/enrollments?academicPeriodId=1   body: [1, 2, 3]  (subject ids)
+    @PreAuthorize("hasRole('STUDENT') and @access.isStudent(#studentId)")
     @PostMapping("/students/{studentId}/enrollments")
     public ResponseEntity<List<EnrollmentEntity>> enroll(@PathVariable Long studentId,
                                                          @RequestParam Long academicPeriodId,
@@ -35,6 +38,7 @@ public class EnrollmentController {
 
     // GET /api/v1/students/1/enrollments                       -> all
     // GET /api/v1/students/1/enrollments?academicPeriodId=1    -> one period
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('STUDENT') and @access.isStudent(#studentId))")
     @GetMapping("/students/{studentId}/enrollments")
     public ResponseEntity<List<EnrollmentEntity>> getByStudent(@PathVariable Long studentId,
                                                                @RequestParam(required = false) Long academicPeriodId) {
@@ -42,12 +46,14 @@ public class EnrollmentController {
     }
 
     // GET /api/v1/students/1/academic-history
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('STUDENT') and @access.isStudent(#studentId))")
     @GetMapping("/students/{studentId}/academic-history")
     public ResponseEntity<List<EnrollmentEntity>> getAcademicHistory(@PathVariable Long studentId) {
         return ResponseEntity.ok(enrollmentService.getAcademicHistory(studentId));
     }
 
     // DELETE /api/v1/enrollments/7 -> cancels enrollment 7 and frees its seat
+    @PreAuthorize("hasRole('STUDENT') and @access.isOwnEnrollment(#id)")
     @DeleteMapping("/enrollments/{id}")
     public ResponseEntity<Void> cancel(@PathVariable Long id) {
         enrollmentService.cancel(id);

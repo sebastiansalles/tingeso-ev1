@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class SectionController {
 
     // GET /api/v1/sections                    -> all sections
     // GET /api/v1/sections?academicPeriodId=1 -> academic offer of one period
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<SectionEntity>> getAll(@RequestParam(required = false) Long academicPeriodId) {
         if (academicPeriodId == null) {
@@ -27,17 +29,17 @@ public class SectionController {
         }
         return ResponseEntity.ok(sectionService.getByAcademicPeriod(academicPeriodId));
     }
-
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<SectionEntity> getById(@PathVariable Long id) {
         return ResponseEntity.ok(sectionService.getById(id));
     }
-
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}/schedule")
     public ResponseEntity<List<ScheduleBlockEntity>> getSchedule(@PathVariable Long id) {
         return ResponseEntity.ok(sectionService.getSchedule(id));
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<SectionEntity> create(@RequestBody SectionRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(sectionService.create(request));

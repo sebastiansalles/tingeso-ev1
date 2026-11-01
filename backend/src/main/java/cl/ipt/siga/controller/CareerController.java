@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 
 import java.util.List;
@@ -17,21 +18,25 @@ public class CareerController {
 
     private final CareerService careerService;
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<CareerEntity> getById(@PathVariable Long id) {
         return ResponseEntity.ok(careerService.getById(id));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<CareerEntity>> getAll() {
         return ResponseEntity.ok(careerService.getAll());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<CareerEntity> create(@RequestBody CareerEntity careerEntity) {
         return ResponseEntity.status(HttpStatus.CREATED).body(careerService.create(careerEntity));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<CareerEntity> update(@PathVariable Long id, @RequestBody CareerEntity careerEntity) {
         return ResponseEntity.ok(careerService.update(id, careerEntity));

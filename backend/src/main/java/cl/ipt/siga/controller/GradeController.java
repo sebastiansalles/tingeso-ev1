@@ -7,6 +7,7 @@ import cl.ipt.siga.service.SectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class GradeController {
     private final SectionService sectionService;
 
     // GET /api/v1/teachers/1/sections?academicPeriodId=1 -> sections assigned to the teacher
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('TEACHER') and @access.isTeacher(#teacherId))")
     @GetMapping("/teachers/{teacherId}/sections")
     public ResponseEntity<List<SectionEntity>> getTeacherSections(@PathVariable Long teacherId,
                                                                   @RequestParam(required = false) Long academicPeriodId) {
@@ -26,6 +28,7 @@ public class GradeController {
     }
 
     // GET /api/v1/sections/1/enrollments -> students enrolled in the section
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('TEACHER') and @access.isTeacherOfSection(#sectionId))")
     @GetMapping("/sections/{sectionId}/enrollments")
     public ResponseEntity<List<EnrollmentEntity>> getSectionEnrollments(@PathVariable Long sectionId) {
         return ResponseEntity.ok(gradeService.getSectionEnrollments(sectionId));
@@ -33,6 +36,7 @@ public class GradeController {
 
     // PUT /api/v1/enrollments/7/grade?teacherId=1&grade=5.5
     // TEMPORARY: teacherId comes as a parameter until Keycloak provides the logged-in teacher (phase 4)
+    @PreAuthorize("hasRole('TEACHER')")
     @PutMapping("/enrollments/{enrollmentId}/grade")
     public ResponseEntity<EnrollmentEntity> registerGrade(@PathVariable Long enrollmentId,
                                                           @RequestParam Long teacherId,
