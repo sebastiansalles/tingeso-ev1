@@ -16,5 +16,5 @@ public interface StudentRepository extends JpaRepository<StudentEntity, Long> {
 
 
 
-    Optional<StudentEntity> findByEmail(String email);   // en StudentRepository
+    Optional<StudentEntity> findByEmail(String email);
 }
