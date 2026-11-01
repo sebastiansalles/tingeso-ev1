@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import cl.ipt.siga.security.CurrentUser;
 
 import java.util.List;
 
@@ -53,5 +54,12 @@ public class StudentController {
     public ResponseEntity<StudentEntity> changeStatus(@PathVariable Long id,
                                                       @RequestParam StudentStatus status) {
         return ResponseEntity.ok(studentService.changeStatus(id, status));
+    }
+
+    // GET /api/v1/students/me -> the student linked to the logged-in user
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/me")
+    public ResponseEntity<StudentEntity> getMe() {
+        return ResponseEntity.ok(studentService.getByEmail(CurrentUser.email()));
     }
 }
