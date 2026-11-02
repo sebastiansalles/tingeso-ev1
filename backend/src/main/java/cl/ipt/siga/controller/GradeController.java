@@ -2,6 +2,7 @@ package cl.ipt.siga.controller;
 
 import cl.ipt.siga.entity.EnrollmentEntity;
 import cl.ipt.siga.entity.SectionEntity;
+import cl.ipt.siga.entity.StudentEntity;
 import cl.ipt.siga.service.GradeService;
 import cl.ipt.siga.service.SectionService;
 import cl.ipt.siga.service.TeacherService;
@@ -35,6 +36,13 @@ public class GradeController {
     @GetMapping("/sections/{sectionId}/enrollments")
     public ResponseEntity<List<EnrollmentEntity>> getSectionEnrollments(@PathVariable Long sectionId) {
         return ResponseEntity.ok(gradeService.getSectionEnrollments(sectionId));
+    }
+
+    // GET /api/v1/sections/1/students -> personal data of the students enrolled in the section
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('TEACHER') and @access.isTeacherOfSection(#sectionId))")
+    @GetMapping("/sections/{sectionId}/students")
+    public ResponseEntity<List<StudentEntity>> getSectionStudents(@PathVariable Long sectionId) {
+        return ResponseEntity.ok(gradeService.getSectionStudents(sectionId));
     }
 
     // PUT /api/v1/enrollments/7/grade?grade=5.5

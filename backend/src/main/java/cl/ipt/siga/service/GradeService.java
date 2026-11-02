@@ -2,6 +2,7 @@ package cl.ipt.siga.service;
 
 import cl.ipt.siga.entity.EnrollmentEntity;
 import cl.ipt.siga.entity.SectionEntity;
+import cl.ipt.siga.entity.StudentEntity;
 import cl.ipt.siga.entity.enums.SubjectResult;
 import cl.ipt.siga.exception.BusinessRuleException;
 import cl.ipt.siga.exception.ResourceNotFoundException;
@@ -21,19 +22,30 @@ public class GradeService {
     private final EnrollmentRepository enrollmentRepository;
     private final SectionService sectionService;
     private final AcademicPeriodService academicPeriodService;
+    private final StudentService studentService;
 
     public GradeService(EnrollmentRepository enrollmentRepository,
                         SectionService sectionService,
-                        AcademicPeriodService academicPeriodService) {
+                        AcademicPeriodService academicPeriodService,
+                        StudentService studentService) {
         this.enrollmentRepository = enrollmentRepository;
         this.sectionService = sectionService;
         this.academicPeriodService = academicPeriodService;
+        this.studentService = studentService;
     }
 
     // Students enrolled in a section (what the teacher sees to grade)
     public List<EnrollmentEntity> getSectionEnrollments(Long sectionId) {
         sectionService.getById(sectionId);   // 404
         return enrollmentRepository.findBySectionId(sectionId);
+    }
+
+    // Personal data of the students enrolled in a section (RUN, name, email), to show them to the teacher
+    public List<StudentEntity> getSectionStudents(Long sectionId) {
+        List<Long> studentIds = getSectionEnrollments(sectionId).stream()
+                .map(EnrollmentEntity::getStudentId)
+                .toList();
+        return studentService.getByIds(studentIds);
     }
 
     // The ONLY place where finalGrade and result change, always together

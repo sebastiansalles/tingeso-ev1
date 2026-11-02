@@ -239,4 +239,13 @@ class StudentServiceTest {
         assertThat(existing.getStatus()).isEqualTo(ELIMINATED);
         verify(studentRepository).save(existing);
     }
+
+
+    @Test
+    void whenGetByIds_thenReturnsThoseStudents() {
+        when(studentRepository.findAllById(List.of(1L, 2L))).thenReturn(List.of(
+                student(1L, "11111111-1", "ana@ipt.cl", REGULAR), student(2L, "22222222-2", "bob@ipt.cl", REGULAR)));
+
+        assertThat(studentService.getByIds(List.of(1L, 2L))).hasSize(2);
+    }
 }

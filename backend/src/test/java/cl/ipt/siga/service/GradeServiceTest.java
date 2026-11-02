@@ -10,9 +10,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+
 import java.util.List;
 import java.util.Optional;
 
+import static cl.ipt.siga.service.TestData.student;
+import static cl.ipt.siga.entity.enums.StudentStatus.REGULAR;
 import static cl.ipt.siga.entity.enums.SubjectResult.APPROVED;
 import static cl.ipt.siga.entity.enums.SubjectResult.FAILED;
 import static cl.ipt.siga.service.TestData.enrollment;
@@ -33,6 +36,9 @@ class GradeServiceTest {
 
     @Mock
     private AcademicPeriodService academicPeriodService;
+
+    @Mock
+    private StudentService studentService;
 
     @InjectMocks
     private GradeService gradeService;
@@ -137,5 +143,19 @@ class GradeServiceTest {
 
         assertThatThrownBy(() -> gradeService.registerGrade(99L, TEACHER, 5.0))
                 .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+
+    @Test
+    void whenGetSectionStudents_thenReturnsStudentsOfItsEnrollments() {
+        // Given: two students enrolled in section 11
+        when(enrollmentRepository.findBySectionId(11L)).thenReturn(List.of(
+                enrollment(1L, 5L, 1L, 11L, PERIOD, null, null), enrollment(2L, 6L, 1L, 11L, PERIOD, null, null)));
+        when(studentService.getByIds(List.of(5L, 6L))).thenReturn(List.of(
+                student(5L, "11111111-1", "ana@ipt.cl", REGULAR), student(6L, "22222222-2", "bob@ipt.cl", REGULAR)));
+
+        // When / Then
+        assertThat(gradeService.getSectionStudents(11L)).hasSize(2);
+        verify(sectionService).getById(11L);
     }
 }

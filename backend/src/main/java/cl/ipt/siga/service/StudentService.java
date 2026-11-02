@@ -127,4 +127,9 @@ public class StudentService {
         return studentRepository.findByEmail(email.trim().toLowerCase())
                 .orElseThrow(() -> new ResourceNotFoundException("No student is linked to the account " + email));
     }
+
+    // Several students at once, e.g. the students enrolled in a section
+    public List<StudentEntity> getByIds(List<Long> ids) {
+        return studentRepository.findAllById(ids);
+    }
 }
