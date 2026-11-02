@@ -14,6 +14,8 @@ import TeacherList from "./pages/admin/TeacherList";
 import TeacherForm from "./pages/admin/TeacherForm";
 import PeriodList from "./pages/admin/PeriodList";
 import SectionList from "./pages/admin/SectionList";
+import MySections from "./pages/teacher/MySections";
+import SectionGrades from "./pages/teacher/SectionGrades";
 import { ROLES } from "./auth";
 
 const admin = (page) => <RequireRole roles={[ROLES.ADMIN]}>{page}</RequireRole>;
@@ -44,7 +46,8 @@ export default function App() {
           <Route path="/sections" element={admin(<SectionList />)} />
 
           {/* Teacher */}
-          <Route path="/my-sections" element={teacher(<Pending />)} />
+          <Route path="/my-sections" element={teacher(<MySections />)} />
+          <Route path="/my-sections/:sectionId" element={teacher(<SectionGrades />)} />
 
           {/* Student */}
           <Route path="/my-plan" element={student(<Pending />)} />

@@ -7,4 +7,9 @@ const create = (teacher) => api.post("/teachers", teacher);
 const update = (id, teacher) => api.put(`/teachers/${id}`, teacher);
 const changeStatus = (id, status) => api.put(`/teachers/${id}/status`, null, { params: { status } });
 
-export default { getAll, get, create, update, changeStatus };
+// The teacher linked to the logged-in user, and their sections
+const getMe = () => api.get("/teachers/me");
+const getSections = (teacherId) => api.get(`/teachers/${teacherId}/sections`);
+
+export default { getAll, get, create, update, changeStatus, getMe, getSections };
+

@@ -9,5 +9,6 @@ const getPrerequisites = (subjectId) => api.get(`/subjects/${subjectId}/prerequi
 const addPrerequisite = (subjectId, prerequisiteId) => api.post(`/subjects/${subjectId}/prerequisites/${prerequisiteId}`);
 const removePrerequisite = (subjectId, prerequisiteId) => api.delete(`/subjects/${subjectId}/prerequisites/${prerequisiteId}`);
 const getAll = () => api.get("/subjects");
+const get = (id) => api.get(`/subjects/${id}`);
 
-export default { getAll, getByStudyPlan, create, update, getPrerequisites, addPrerequisite, removePrerequisite };
+export default { getAll, getByStudyPlan, create, update, getPrerequisites, addPrerequisite, removePrerequisite, get };

@@ -7,5 +7,6 @@ const close = (id) => api.post(`/academic-periods/${id}/close`);
 
 const getRegistrations = (periodId) => api.get(`/academic-periods/${periodId}/registrations`);
 const register = (periodId, studentId) => api.post(`/academic-periods/${periodId}/registrations/${studentId}`);
+const get = (id) => api.get(`/academic-periods/${id}`);
 
-export default { getAll, create, close, getRegistrations, register };
+export default { getAll, create, close, getRegistrations, register, get };
