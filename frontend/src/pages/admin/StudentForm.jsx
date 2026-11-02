@@ -75,7 +75,9 @@ export default function StudentForm() {
           <TextField label="RUN" name="run" value={student.run} onChange={handleChange} required
                      placeholder="12.345.678-9" />
           <TextField label="Nombre completo" name="fullName" value={student.fullName} onChange={handleChange} required />
-          <TextField label="Correo electrónico" name="email" type="email" value={student.email} onChange={handleChange} required />
+          <TextField label="Correo electrónico" name="email" type="email" value={student.email} onChange={handleChange} required
+                     disabled={isEdit}
+                     helperText={isEdit ? "Vincula al estudiante con su cuenta de acceso; no se puede modificar" : "Será su usuario de acceso. La contraseña inicial será su RUN"} />
           <TextField select label="Carrera" name="careerId" value={student.careerId} onChange={handleChange} required
                      disabled={isEdit}
                      helperText={isEdit ? "La carrera no se modifica desde aquí" : "Se asignará el plan de estudios vigente"}>

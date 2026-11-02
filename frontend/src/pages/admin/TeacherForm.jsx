@@ -59,7 +59,8 @@ export default function TeacherForm() {
           <TextField label="RUN" name="run" value={teacher.run} onChange={handleChange} required placeholder="9.876.543-2" />
           <TextField label="Nombre completo" name="fullName" value={teacher.fullName} onChange={handleChange} required />
           <TextField label="Correo electrónico" name="email" type="email" value={teacher.email} onChange={handleChange} required
-                     helperText="Debe coincidir con el correo de su usuario en Keycloak" />
+                     disabled={isEdit}
+                     helperText={isEdit ? "Vincula al docente con su cuenta de acceso; no se puede modificar" : "Será su usuario de acceso. La contraseña inicial será su RUN"} />
           <TextField label="Título profesional" name="professionalTitle" value={teacher.professionalTitle} onChange={handleChange} required />
           <TextField label="Grado académico" name="academicDegree" value={teacher.academicDegree} onChange={handleChange} required />
 

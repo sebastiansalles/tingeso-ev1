@@ -8,6 +8,8 @@ import cl.ipt.siga.repository.SectionRepository;
 import cl.ipt.siga.repository.TeacherRepository;
 import org.springframework.stereotype.Service;
 import cl.ipt.siga.exception.BusinessRuleException;
+import cl.ipt.siga.security.KeycloakAdminClient;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,11 +21,13 @@ public class TeacherService {
     private final TeacherRepository teacherRepository;
     private final SectionRepository sectionRepository;
     private final AcademicPeriodService academicPeriodService;
+    private final KeycloakAdminClient keycloakAdminClient;
 
-    public TeacherService(TeacherRepository teacherRepository, SectionRepository sectionRepository,  AcademicPeriodService academicPeriodService) {
+    public TeacherService(TeacherRepository teacherRepository, SectionRepository sectionRepository,  AcademicPeriodService academicPeriodService, KeycloakAdminClient keycloakAdminClient) {
         this.teacherRepository = teacherRepository;
         this.sectionRepository = sectionRepository;
         this.academicPeriodService = academicPeriodService;
+        this.keycloakAdminClient = keycloakAdminClient;
     }
 
     public List<TeacherEntity> getAll() {
@@ -35,6 +39,9 @@ public class TeacherService {
                 .orElseThrow(() -> new ResourceNotFoundException("Could not find a teacher with ID: " + id));
     }
 
+    // Also creates the Keycloak account (initial password: the RUN). If Keycloak fails,
+    // the transaction rolls back and the student is not saved either.
+    @Transactional
     public TeacherEntity create(TeacherEntity teacher) {
         teacher.setRun(normalizeRun(teacher.getRun()));
         teacher.setEmail(normalizeEmail(teacher.getEmail()));
@@ -51,7 +58,9 @@ public class TeacherService {
 
         teacher.setStatus(TeacherStatus.ACTIVE);   // initial status, never taken from the request
         teacher.setId(null);
-        return teacherRepository.save(teacher);
+        TeacherEntity saved = teacherRepository.save(teacher);
+        keycloakAdminClient.createUser(saved.getEmail(), saved.getFullName(), saved.getRun(), "TEACHER");
+        return saved;
     }
 
     // Updates personal and academic data. Status has its own method.
@@ -59,17 +68,13 @@ public class TeacherService {
         TeacherEntity teacher = getById(id);
 
         String newRun = normalizeRun(data.getRun());
-        String newEmail = normalizeEmail(data.getEmail());
 
         if (!newRun.equals(teacher.getRun()) && teacherRepository.existsByRun(newRun)) {
             throw new DuplicateResourceException("A teacher with RUN " + newRun + " already exists");
         }
-        if (!newEmail.equals(teacher.getEmail()) && teacherRepository.existsByEmail(newEmail)) {
-            throw new DuplicateResourceException("A teacher with email " + newEmail + " already exists");
-        }
+
 
         teacher.setRun(newRun);
-        teacher.setEmail(newEmail);
         teacher.setFullName(requireText(data.getFullName(), "Full name"));
         teacher.setProfessionalTitle(requireText(data.getProfessionalTitle(), "Professional title"));
         teacher.setAcademicDegree(requireText(data.getAcademicDegree(), "Academic degree"));

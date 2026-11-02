@@ -10,6 +10,8 @@ import cl.ipt.siga.exception.DuplicateResourceException;
 import cl.ipt.siga.exception.ResourceNotFoundException;
 import cl.ipt.siga.repository.StudentRepository;
 import org.springframework.stereotype.Service;
+import cl.ipt.siga.security.KeycloakAdminClient;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,13 +21,18 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final CareerService careerService;
     private final StudyPlanService studyPlanService;
+    private final KeycloakAdminClient keycloakAdminClient;
 
-    public StudentService(StudentRepository studentRepository, CareerService careerService, StudyPlanService studyPlanService) {
+    public StudentService(StudentRepository studentRepository, CareerService careerService, StudyPlanService studyPlanService, KeycloakAdminClient keycloakAdminClient) {
         this.studentRepository = studentRepository;
         this.careerService = careerService;
         this.studyPlanService = studyPlanService;
+        this.keycloakAdminClient = keycloakAdminClient;
     }
 
+    // Also creates the Keycloak account (initial password: the RUN). If Keycloak fails,
+    // the transaction rolls back and the student is not saved either.
+    @Transactional
     public StudentEntity create(StudentEntity student) {
         CareerEntity career = careerService.getById(student.getCareerId());   // 404
         if (career.getStatus() == CareerStatus.INACTIVE) {
@@ -47,7 +54,9 @@ public class StudentService {
         student.setStudyPlanId(studyPlanService.getCurrentByCareer(career.getId()).getId());
         student.setStatus(StudentStatus.REGULAR);
         student.setId(null);
-        return studentRepository.save(student);
+        StudentEntity saved = studentRepository.save(student);
+        keycloakAdminClient.createUser(saved.getEmail(), saved.getFullName(), saved.getRun(), "STUDENT");
+        return saved;
     }
 
     public List<StudentEntity> getAll(){
@@ -70,20 +79,14 @@ public class StudentService {
         StudentEntity student = getById(id);
 
         String newRun = normalizeRun(data.getRun());
-        String newEmail = normalizeEmail(data.getEmail());
         student.setFullName(requireText(data.getFullName(), "Full name"));
 
         if (!newRun.equals(student.getRun()) && studentRepository.existsByRun(newRun)) {
             throw new DuplicateResourceException("A student with RUN " + newRun + " already exists");
         }
-        if (!newEmail.equals(student.getEmail()) && studentRepository.existsByEmail(newEmail)) {
-            throw new DuplicateResourceException("A student with email " + newEmail + " already exists");
-        }
-
         student.setRun(newRun);
-        student.setFullName(data.getFullName());
-        student.setEmail(newEmail);
         return studentRepository.save(student);
+        // The email is not editable: it links the student to the Keycloak account.
     }
 
 
