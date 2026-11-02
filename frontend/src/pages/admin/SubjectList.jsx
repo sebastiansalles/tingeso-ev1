@@ -72,7 +72,7 @@ export default function SubjectList() {
 
   return (
     <>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+      <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 2 }}>
         <Typography variant="h5">Planes de estudio y asignaturas</Typography>
         <Stack direction="row" spacing={1}>
           <Button variant="outlined" disabled={!careerId} onClick={() => setDialog({ type: "plan" })}>Nuevo plan</Button>

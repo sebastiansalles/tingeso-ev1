@@ -26,7 +26,7 @@ export default function CareerList() {
 
   return (
     <>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+      <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 2 }}>
         <Typography variant="h5">Carreras</Typography>
         <Button variant="contained" onClick={() => navigate("/careers/new")}>Nueva carrera</Button>
       </Stack>

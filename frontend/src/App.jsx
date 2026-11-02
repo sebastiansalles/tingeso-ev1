@@ -9,6 +9,8 @@ import CareerList from "./pages/admin/CareerList";
 import { ROLES } from "./auth";
 import CareerForm from "./pages/admin/CareerForm";
 import SubjectList from "./pages/admin/SubjectList";
+import StudentList from "./pages/admin/StudentList";
+import StudentForm from "./pages/admin/StudentForm";
 
 const admin = (page) => <RequireRole roles={[ROLES.ADMIN]}>{page}</RequireRole>;
 const teacher = (page) => <RequireRole roles={[ROLES.TEACHER]}>{page}</RequireRole>;
@@ -26,7 +28,9 @@ export default function App() {
           {/* Administrator */}
           <Route path="/careers" element={admin(<CareerList />)} />
           <Route path="/subjects" element={admin(<SubjectList />)} />
-          <Route path="/students" element={admin(<Pending />)} />
+          <Route path="/students" element={admin(<StudentList />)} />
+          <Route path="/students/new" element={admin(<StudentForm />)} />
+          <Route path="/students/:id/edit" element={admin(<StudentForm />)} />
           <Route path="/teachers" element={admin(<Pending />)} />
           <Route path="/periods" element={admin(<Pending />)} />
           <Route path="/sections" element={admin(<Pending />)} />
