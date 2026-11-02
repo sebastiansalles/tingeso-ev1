@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import cl.ipt.siga.security.KeycloakAdminClient;
 
 @ExtendWith(MockitoExtension.class)
 class TeacherServiceTest {
@@ -34,6 +35,9 @@ class TeacherServiceTest {
 
     @Mock
     private AcademicPeriodService academicPeriodService;
+
+    @Mock
+    private KeycloakAdminClient keycloakAdminClient;
 
     @InjectMocks
     private TeacherService teacherService;
@@ -68,6 +72,7 @@ class TeacherServiceTest {
         assertThat(created.getEmail()).isEqualTo("c.rojas@ipt.cl");
         assertThat(created.getStatus()).isEqualTo(ACTIVE);
         assertThat(created.getId()).isNull();
+        verify(keycloakAdminClient).createUser("c.rojas@ipt.cl", created.getFullName(), "9876543-2", "TEACHER");
     }
 
     @Test
@@ -114,7 +119,7 @@ class TeacherServiceTest {
 
         // Then
         assertThat(updated.getRun()).isEqualTo("11111111-1");
-        assertThat(updated.getEmail()).isEqualTo("new@ipt.cl");
+        assertThat(updated.getEmail()).isEqualTo("c@ipt.cl");   // the email is never changed
         assertThat(updated.getAcademicDegree()).isEqualTo("Doctor");
         assertThat(updated.getStatus()).isEqualTo(ACTIVE);   // status has its own method
     }
@@ -128,14 +133,7 @@ class TeacherServiceTest {
                 .isInstanceOf(DuplicateResourceException.class);
     }
 
-    @Test
-    void whenUpdateToEmailOfAnotherTeacher_thenConflict() {
-        when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher(1L, "9876543-2", "c@ipt.cl", ACTIVE)));
-        when(teacherRepository.existsByEmail("other@ipt.cl")).thenReturn(true);
 
-        assertThatThrownBy(() -> teacherService.update(1L, teacher(null, "9876543-2", "other@ipt.cl", ACTIVE)))
-                .isInstanceOf(DuplicateResourceException.class);
-    }
 
     // ---------------------------------------------------------------- status
 

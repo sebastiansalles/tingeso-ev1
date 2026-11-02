@@ -15,14 +15,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
-
+import cl.ipt.siga.security.KeycloakAdminClient;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 // Integration tests: the real services, repositories and database (H2 in memory, "test" profile)
-// work together, with no mocks. Each test runs inside a transaction that is rolled back at the end,
-// so every test starts from an empty database and tests never affect each other.
+// work together. Only Keycloak, an external system, is replaced by a mock. Each test runs inside
+// a transaction that is rolled back at the end, so every test starts from an empty database
+// and tests never affect each other.
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
 abstract class IntegrationTestBase {
+    // Keycloak is an external system: in the integration tests it is replaced by a mock
+    @MockitoBean protected KeycloakAdminClient keycloakAdminClient;
 
     @Autowired protected CareerService careerService;
     @Autowired protected StudyPlanService studyPlanService;

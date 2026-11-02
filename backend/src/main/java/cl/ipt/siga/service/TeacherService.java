@@ -15,6 +15,8 @@ import java.util.List;
 
 import static cl.ipt.siga.util.PersonDataUtils.*;
 
+
+
 @Service
 public class TeacherService {
 
@@ -40,7 +42,7 @@ public class TeacherService {
     }
 
     // Also creates the Keycloak account (initial password: the RUN). If Keycloak fails,
-    // the transaction rolls back and the student is not saved either.
+    // the transaction rolls back and the teacher is not saved either.
     @Transactional
     public TeacherEntity create(TeacherEntity teacher) {
         teacher.setRun(normalizeRun(teacher.getRun()));

@@ -24,6 +24,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+import cl.ipt.siga.security.KeycloakAdminClient;
+
 
 @ExtendWith(MockitoExtension.class)
 class StudentServiceTest {
@@ -36,6 +38,9 @@ class StudentServiceTest {
 
     @Mock
     private StudyPlanService studyPlanService;
+
+    @Mock
+    private KeycloakAdminClient keycloakAdminClient;
 
     @InjectMocks
     private StudentService studentService;
@@ -66,6 +71,8 @@ class StudentServiceTest {
         assertThat(created.getStatus()).isEqualTo(REGULAR);
         assertThat(created.getStudyPlanId()).isEqualTo(10L);
         assertThat(created.getId()).isNull();
+
+        verify(keycloakAdminClient).createUser("ana.perez@ipt.cl", created.getFullName(), "12345678-K", "STUDENT");
     }
 
     @Test
@@ -180,13 +187,15 @@ class StudentServiceTest {
     }
 
     @Test
-    void whenUpdateToEmailOfAnotherStudent_thenConflict() {
-        when(studentRepository.findById(1L)).thenReturn(Optional.of(student(1L, "12345678-K", "ana@ipt.cl", REGULAR)));
-        when(studentRepository.existsByEmail("bob@ipt.cl")).thenReturn(true);
+    void whenUpdateWithAnotherEmail_thenEmailIsKept() {
+        StudentEntity existing = student(1L, "12345678-K", "ana@ipt.cl", REGULAR);
+        when(studentRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(studentRepository.save(existing)).thenReturn(existing);
 
-        assertThatThrownBy(() -> studentService.update(1L, student(null, "12345678-K", "bob@ipt.cl", REGULAR)))
-                .isInstanceOf(DuplicateResourceException.class);
-        verify(studentRepository, never()).save(any());
+        StudentEntity updated = studentService.update(1L, student(null, "12345678-K", "bob@ipt.cl", REGULAR));
+
+        // The email links the student to the Keycloak account, so it is never changed
+        assertThat(updated.getEmail()).isEqualTo("ana@ipt.cl");
     }
 
     // ---------------------------------------------------------------- status
