@@ -3,7 +3,6 @@ import { Container, CssBaseline } from "@mui/material";
 import Navbar from "./components/Navbar";
 import RequireRole from "./components/RequireRole";
 import Home from "./pages/Home";
-import Pending from "./pages/Pending";
 import NotFound from "./pages/NotFound";
 import CareerList from "./pages/admin/CareerList";
 import CareerForm from "./pages/admin/CareerForm";
@@ -16,6 +15,10 @@ import PeriodList from "./pages/admin/PeriodList";
 import SectionList from "./pages/admin/SectionList";
 import MySections from "./pages/teacher/MySections";
 import SectionGrades from "./pages/teacher/SectionGrades";
+import MyPlan from "./pages/student/MyPlan";
+import Enroll from "./pages/student/Enroll";
+import MyEnrollments from "./pages/student/MyEnrollments";
+import History from "./pages/student/History";
 import { ROLES } from "./auth";
 
 const admin = (page) => <RequireRole roles={[ROLES.ADMIN]}>{page}</RequireRole>;
@@ -50,10 +53,10 @@ export default function App() {
           <Route path="/my-sections/:sectionId" element={teacher(<SectionGrades />)} />
 
           {/* Student */}
-          <Route path="/my-plan" element={student(<Pending />)} />
-          <Route path="/enroll" element={student(<Pending />)} />
-          <Route path="/my-enrollments" element={student(<Pending />)} />
-          <Route path="/history" element={student(<Pending />)} />
+          <Route path="/my-plan" element={student(<MyPlan />)} />
+          <Route path="/enroll" element={student(<Enroll />)} />
+          <Route path="/my-enrollments" element={student(<MyEnrollments />)} />
+          <Route path="/history" element={student(<History />)} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
