@@ -1,0 +1,150 @@
+# CD pipeline of SIGA IPT (monorepo: backend + frontend).
+# Same structure as the course example: build -> test -> docker-build -> docker-push.
+# Each job runs on a new, clean machine and starts only if the previous one succeeded (needs),
+# so the images are built and published only when the unit and integration tests pass.
+# Deployment on the cloud server is done manually with Docker Compose (it pulls these images).
+name: SIGA - CD
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:          # also allows running it by hand from the "Actions" tab
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: Generar JAR sin tests
+        working-directory: backend
+        run: mvn -B clean package -DskipTests
+
+      - name: Subir JAR como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: siga-backend-jar
+          path: backend/target/siga-backend.jar
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Generar build del frontend (dist)
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Subir dist como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: siga-frontend-dist
+          path: frontend/dist
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: Ejecutar pruebas unitarias
+        working-directory: backend
+        run: mvn -B test -Dtest='*ServiceTest'
+
+      - name: Subir reporte de cobertura (JaCoCo)
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: backend/target/site/jacoco/
+
+      - name: Ejecutar pruebas de integración
+        working-directory: backend
+        run: mvn -B test -Dtest='*IntegrationTest'
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Descargar JAR generado
+        uses: actions/download-artifact@v4
+        with:
+          name: siga-backend-jar
+          path: backend/target
+
+      - name: Descargar dist generado
+        uses: actions/download-artifact@v4
+        with:
+          name: siga-frontend-dist
+          path: frontend/dist
+
+      - name: Construir imágenes Docker
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/siga-backend:latest backend
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/siga-frontend:latest frontend
+
+      - name: Guardar imágenes Docker como archivos
+        run: |
+          docker save ${{ secrets.DOCKERHUB_USERNAME }}/siga-backend:latest -o siga-backend-image.tar
+          docker save ${{ secrets.DOCKERHUB_USERNAME }}/siga-frontend:latest -o siga-frontend-image.tar
+
+      - name: Subir imágenes Docker como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: siga-docker-images
+          path: |
+            siga-backend-image.tar
+            siga-frontend-image.tar
+
+  docker-push:
+    runs-on: ubuntu-latest
+    needs: docker-build
+
+    steps:
+      - name: Descargar imágenes Docker
+        uses: actions/download-artifact@v4
+        with:
+          name: siga-docker-images
+          path: .
+
+      - name: Cargar imágenes Docker
+        run: |
+          docker load -i siga-backend-image.tar
+          docker load -i siga-frontend-image.tar
+
+      - name: Login en Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Subir imágenes a Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/siga-backend:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/siga-frontend:latest
