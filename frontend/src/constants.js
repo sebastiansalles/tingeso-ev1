@@ -9,3 +9,8 @@ export const STUDENT_STATUS = {
 
 // Only these can be assigned by the administrator; the others are set at period closing
 export const MANUAL_STUDENT_STATUSES = ["REGULAR", "POSTPONED", "TEMPORARY_WITHDRAWAL"];
+
+export const TEACHER_STATUS = {
+  ACTIVE: "Activo",
+  INACTIVE: "Inactivo",
+};
